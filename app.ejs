@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>BetaChat</title>
+        <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            body{
+                background-color: #cfcfe1;
+                position: absolute;
+                width: 100%;
+            }
+            .header{
+                position: relative;
+                margin-top: 0;
+                width: 100%;
+                height: fit-content;
+                text-align: center;
+                font-family: monospace;
+                padding-top: 5px;
+                font-size: 50px;
+            }
+            ::-webkit-scrollbar{
+                background-color: #babaca;
+                margin: 0;
+                border-radius: 15px;
+                width: 5px;
+            }
+            ::-webkit-scrollbar-button{
+                background-color: black;
+                height: 10px;
+            }
+            ::-webkit-scrollbar-thumb{
+                background-color: none;
+                border: 0.5px solid black;
+            }
+            .chatbox{
+                border-style: solid;
+                position: relative;
+                width: 95%;
+                margin-left: 2.5%;
+                height: 500px;
+                overflow: scroll;
+                overflow-x: hidden;
+            }
+            .status{
+                position: relative;
+                width: fit-content;
+                max-width: 70%;
+                height: fit-content;
+                clear: both;
+                left: 40%;
+                white-space: pre-line;
+                word-wrap: break-word;
+                border-style: hidden;
+                border-radius: 20px;
+                background-color: white;
+                margin-left: 1%;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                padding-left: 5px;
+                padding-right: 5px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 25px;
+                padding: 10px;
+
+                transform: scale(1);
+                animation: scale-up 0.4s ease;
+            }
+            .texts{
+                position: relative;
+                width: fit-content;
+                max-width: 50%;
+                height: fit-content;
+                clear: both;
+                white-space: pre-line;
+                word-wrap: break-word;
+                border-style: hidden;
+                border-radius: 20px;
+                background-color: #9999ff;
+                margin-left: 1%;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                padding-left: 5px;
+                padding-right: 5px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 25px;
+                padding: 10px;
+
+                transform: scale(1);
+                animation: scale-up 0.4s ease;
+            }
+            @keyframes scale-up {
+            0% {transform: scale(0)}
+            100% {transform: scale(1)}
+            }
+            .mytexts{
+                position: relative;
+                width: fit-content;
+                max-width: 50%;
+                height: fit-content;
+                float: right;
+                clear: both;
+                white-space: pre-line;
+                word-wrap: break-word;
+                border-style: hidden;
+                border-radius: 20px;
+                background-color: #ffe6ff;
+                margin-left: 1%;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                padding-left: 5px;
+                padding-right: 5px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 25px;
+                padding: 10px;
+
+                transform: scale(1);
+                animation: scale-up 0.4s ease;
+            }
+            .inputs{
+                position: relative;
+                width: 100%;
+                margin-left: 0;
+                margin-bottom: 40px;
+            }
+            textarea{
+                position: relative;
+                width: 100%;
+                height: 100%;
+                border-style: solid;
+                border-color: black;
+                margin-top: 5px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                padding: 5px;
+                font-size: 25px;
+                background-color: #ffe6ff;
+                white-space: pre-line;
+                word-wrap: break-word;
+                resize: none;
+            }
+            .textholder{
+                position: relative;
+                width: 80%;
+                margin-left: 2.5%;
+            }
+            .buttonholder{
+                position: relative;
+                width: 15%;
+                margin-left: 2.5%;
+            }
+            button{
+                position: relative;
+                width: fit-content;
+                height: 45px;
+                padding: 5px;
+                margin-top: 5px;
+                border-style: solid;
+                border-color: black;
+                background-color: #ffe6ff;
+                font-family: monospace;
+                font-size: 25px;
+                transition: all ease-in-out 0.1s;
+            }
+            button:hover{
+                background-color: black;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">BetaChat for the f***ing betas</div>
+        <div class="chatbox"> </div>
+        <div class="inputs">
+         <div class="textholder"> <textarea id="text" placeholder="Type..."></textarea></div>
+          <div class="buttonholder">  <button id="send" onclick="send()">Send</button></div>
+        </div>
+        <script>
+            const button = document.getElementById("send");
+            const textbox = document.getElementById("text");
+            var username = '';
+            
+
+            const socket = io('http://192.168.1.110:3001')
+            socket.on('connection')
+            socket.on('message', data => {
+                const chatbox = document.querySelector(".chatbox");
+                const incomingtext = document.createElement("div");
+                incomingtext.classList.add("texts");
+                incomingtext.innerHTML = data;
+                chatbox.appendChild(incomingtext);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            })
+            socket.on('userConnected', ()=>{
+                const name = prompt("enter your name");
+                socket.emit('userConnectedText', name+" joined")
+                username = name;
+            })
+            socket.on('statusText', data => {
+                const chatbox = document.querySelector(".chatbox");
+                const incomingtext = document.createElement("div");
+                incomingtext.classList.add("status");
+                incomingtext.innerHTML = data;
+                chatbox.appendChild(incomingtext);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            })
+            function send(){
+                //const textbox = document.getElementById("text");
+                const chatbox = document.querySelector(".chatbox");
+                var input = textbox.value;
+                if(!input) return;
+                //emit message
+                socket.emit('message', username+": "+input)
+                //show on chatbox
+                const newtext = document.createElement("div");
+                newtext.classList.add("mytexts");
+                newtext.innerHTML = "Me: "+input;
+                chatbox.appendChild(newtext);
+                document.getElementById('text').value = '';
+                
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+            textbox.addEventListener('keydown', key => {
+                if(key.code==='Enter' && key.shiftKey==false){
+                    send();
+                    key.preventDefault();
+                }
+            })
+        </script>
+    </body>
+</html>
