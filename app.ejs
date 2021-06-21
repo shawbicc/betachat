@@ -184,7 +184,7 @@
             var username = '';
             
 
-            const socket = io('http://192.168.1.110:3001')
+            const socket = io('https://betachat-shawbicc.herokuapp.com/')
             socket.on('connection')
             socket.on('message', data => {
                 const chatbox = document.querySelector(".chatbox");
