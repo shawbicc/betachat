@@ -182,9 +182,19 @@
             const button = document.getElementById("send");
             const textbox = document.getElementById("text");
             var username = '';
+
+            var windowActive;
+            window.onfocus = function () { 
+            isActive = true; 
+            document.title = 'BetaChat'
+            textbox.focus();
+            }; 
+            window.onblur = function () { 
+             isActive = false; 
+            }; 
             
 
-            const socket = io('https://betachat-shawbicc.herokuapp.com/')
+            const socket = io('http://192.168.1.110:3001')
             socket.on('connection')
             socket.on('message', data => {
                 const chatbox = document.querySelector(".chatbox");
@@ -193,6 +203,10 @@
                 incomingtext.innerHTML = data;
                 chatbox.appendChild(incomingtext);
                 chatbox.scrollTop = chatbox.scrollHeight;
+
+                if(!windowActive) {
+                    document.title = 'N E W  M E S S A G E'
+                }
             })
             socket.on('userConnected', ()=>{
                 const name = prompt("enter your name");
